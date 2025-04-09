@@ -1,49 +1,46 @@
 
 import * as THREE from 'three';
-import gsap from 'gsap';
-import GUI from 'lil-gui';
 import { OrbitControls } from 'three/examples/jsm/Addons.js';
 
 const canvas = document.querySelector('canvas.webgl');
-const gui = new GUI()
+
+//texture
+const loadingManager = new THREE.LoadingManager();
+
+loadingManager.onStart = () => {
+    console.log('onStart');
+}
+loadingManager.onLoad = () => {
+    console.log('onLoad');
+}
+loadingManager.onProgress = () => {
+    console.log('onProgress');
+}
+loadingManager.onError = () => {
+    console.log('onError'); 
+}
+const textureLoader = new THREE.TextureLoader(loadingManager);
+const texture = textureLoader.load('./texture/door.jpg')
+
+// texture.repeat.x= 1;
+// texture.repeat.y = 2;
+
+// texture.offset.x = 0.5;
+// texture.offset.y = 0.5;
+texture.rotation = Math.PI/4
+texture.center.set(0.5, 0.5)
+
+texture.magFilter = THREE.NearestFilter
+
 
 const scene = new THREE.Scene();
-
-// const positionArray = new Float32Array([
-//     0, 0, 0,
-//     0, 1, 0,
-//     1, 0, 0,
-//     1, 1, 0,    
-//     0, 0, 1,
-//     0, 1, 1,
-//     1, 0, 1,
-// ]);
-
-// const positionAttribute = new THREE.BufferAttribute(positionArray, 3);
-
-// const geometry = new THREE.BufferGeometry();
-// geometry.setAttribute('position', positionAttribute);
-const geometry = new THREE.BoxGeometry(1, 1, 1 , 30, 30 , 30)
-const material = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+const geometry =  new THREE.BoxGeometry(1, 1, 1 , 30, 30 , 30);
 const mesh1 = new THREE.Mesh(
- geometry,
- material
+   geometry,
+  new THREE.MeshBasicMaterial({ map: texture })
 );
 scene.add(mesh1);
-
-//Debug
-gui.add(mesh1.position, 'x').min(-3).max(3).step(0.01)
-gui.add(mesh1.position, 'y').min(-3).max(3).step(0.01)
-gui.add(mesh1.position, 'z').min(-3).max(3).step(0.01)
-
-gui.add(material, 'wireframe')
-
-gui.add(material, 'opacity').min(0).max(1).step(0.01)
-gui.add(material, 'visible')    
-gui.addColor(material, 'color').onChange(() => {
-    console.log('color changed');
-})
-
+console.log('geo attribute', geometry.attributes.uv);
 
 
 //sizes
@@ -99,13 +96,14 @@ window.addEventListener('mousemove', (event) => {
 //animation
 const animate = () => {
    
-    // const elapsedTime = clock.getElapsedTime();
+    const elapsedTime = clock.getElapsedTime();
     // camera.position.x = Math.sin(mouse.x * Math.PI) * 2;
     // camera.position.z = Math.cos(mouse.x * Math.PI) * 2;
     // camera.position.y = mouse.y * 2;
     // camera.lookAt(mesh1.position)
     controls.update()
-
+    // mesh1.rotation.y = elapsedTime
+    // mesh1.rotation.x = elapsedTime
   
     requestAnimationFrame(animate);
     renderer.render(scene, camera);
