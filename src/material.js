@@ -10,8 +10,25 @@ const canvas = document.querySelector('canvas.webgl');
 
 const scene = new THREE.Scene();
 const textureLoader = new THREE.TextureLoader();
+const cubeTextureLoader = new THREE.CubeTextureLoader();
+
 const texture = textureLoader.load('./texture/door.jpg')
 const matcapTexture = textureLoader.load('./texture/matcaps/3.png')
+const aoTexture = textureLoader.load('./texture/ambientOcclusion.jpg')
+const heightTexture = textureLoader.load('./texture/height.jpg')
+const metalTexture = textureLoader.load('./texture/metalness.jpg')
+const roughnessTexture = textureLoader.load('./texture/roughness.jpg')
+const normalTexture = textureLoader.load('./texture/normal.jpg')    
+
+const enviromentMapTexture = cubeTextureLoader.load([
+    './texture/environmentMap/1/nx.png',
+    './texture/environmentMap/1/ny.png',
+    './texture/environmentMap/1/nz.png',
+    './texture/environmentMap/1/px.png',
+    './texture/environmentMap/1/ny.png',
+    './texture/environmentMap/1/nz.png',
+])
+
 //objects
 //normal
 // const material = new THREE.MeshNormalMaterial();
@@ -34,22 +51,36 @@ const material = new THREE.MeshStandardMaterial()
 material.roughness = 1
 material.metalness = 1
 
+
+material.envMap = enviromentMapTexture
+
+// material.map = texture
+// material.displacementMap = heightTexture
+// material.displacementScale = 0.07
+// material.metalnessMap = metalTexture
+// material.roughnessMap = roughnessTexture
+// material.normalMap = normalTexture
+
 gui.add(material, 'metalness').min(0).max(3).step(0.001)
 gui.add(material, 'roughness').min(0).max(3).step(0.001)
 
 
 const mesh1 = new THREE.Mesh(
-    new THREE.SphereGeometry(0.5, 16, 16),
+    new THREE.SphereGeometry(0.5, 64, 64),
     material
 );
+mesh1.geometry.setAttribute('uv2', new THREE.BufferAttribute(mesh1.geometry.attributes.uv.array, 2));
 const mesh2 = new THREE.Mesh(
-    new THREE.PlaneGeometry(1,1),
+    new THREE.PlaneGeometry(1,1 , 100, 100),
     material
 );
+mesh2.geometry.setAttribute('uv2', new THREE.BufferAttribute(mesh2.geometry.attributes.uv.array, 2));
 const mesh3 = new THREE.Mesh(
     new THREE.TorusGeometry(0.3, 0.2 , 16, 32),
     material
 );
+mesh3.geometry.setAttribute('uv2', new THREE.BufferAttribute(mesh3.geometry.attributes.uv.array, 2));
+
 scene.add(mesh1);
 scene.add(mesh2);
 scene.add(mesh3);
@@ -130,7 +161,7 @@ const animate = () => {
     // camera.lookAt(mesh1.position)
     controls.update()
     mesh1.rotation.y = .7 * elapsedTime;
-    mesh2.rotation.y = .3 * elapsedTime;
+
     mesh3.rotation.y = .2 * elapsedTime;
 
     requestAnimationFrame(animate);
