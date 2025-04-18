@@ -31,8 +31,8 @@ gui.add(directionalLight.position, 'y').min(- 5).max(5).step(0.001)
 gui.add(directionalLight.position, 'z').min(- 5).max(5).step(0.001)
 scene.add(directionalLight)
 directionalLight.castShadow = true
-directionalLight.shadow.mapSize.width = 1024
-directionalLight.shadow.mapSize.height = 1024
+directionalLight.shadow.mapSize.width = 1024 /4 
+directionalLight.shadow.mapSize.height = 1024 /4
 directionalLight.shadow.camera.far = 10
 directionalLight.shadow.camera.near = 1
 
@@ -45,7 +45,9 @@ directionalLight.shadow.radius = 10
 
 
 const directionalLightCameraHelper = new THREE.CameraHelper(directionalLight.shadow.camera)
+
 scene.add(directionalLightCameraHelper)
+directionalLightCameraHelper.visible = false
 
 /**
  * Materials
@@ -68,7 +70,7 @@ const plane = new THREE.Mesh(
     material
 )
 plane.rotation.x = - Math.PI * 0.5
-plane.position.y = - 0.5
+plane.position.y = - .6
 plane.receiveShadow = true
 
 scene.add(sphere, plane)
@@ -119,6 +121,7 @@ const renderer = new THREE.WebGLRenderer({
 renderer.setSize(sizes.width, sizes.height)
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
 renderer.shadowMap.enabled = true
+renderer.shadowMap.type = THREE.PCFSoftShadowMap
 
 /**
  * Animate
@@ -128,6 +131,11 @@ const clock = new THREE.Clock()
 const tick = () =>
 {
     const elapsedTime = clock.getElapsedTime()
+    
+    sphere.position.z = Math.sin(elapsedTime * 1.5) 
+    sphere.position.x = Math.cos(elapsedTime * 1.5) 
+    sphere.position.y = Math.abs(Math.sin(elapsedTime * 2.5))
+    
 
     // Update controls
     controls.update()
